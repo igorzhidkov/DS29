@@ -1,0 +1,547 @@
+% Copyright 2004 by Till Tantau <tantau@users.sourceforge.net>.
+%
+% In principle, this file can be redistributed and/or modified under
+% the terms of the GNU Public License, version 2.
+%
+% However, this file is supposed to be a template to be modified
+% for your own needs. For this reason, if you use this file as a
+% template and not specifically distribute it as part of a another
+% package/program, I grant the extra permission to freely copy and
+% modify this file as you see fit and even to delete this copyright
+% notice. 
+
+\documentclass{beamer}
+
+% There are many different themes available for Beamer. A comprehensive
+% list with examples is given here:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+% You can uncomment the themes below if you would like to use a different
+% one:
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{boxes}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+\usetheme{default}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+%\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+\newenvironment{trienv}{\only{\setbeamertemplate{items}[triangle]}}{}
+\usepackage{wrapfig}
+\usepackage{multimedia}
+\usepackage{multirow}
+\usepackage[round]{natbib}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{graphicx} 
+\usepackage{tikz}
+\usepackage{bibentry}
+\useoutertheme{miniframes}
+\setbeamercolor{frametitle}{fg = black}
+\setbeamercolor{title}{fg = black}
+\defbeamertemplate{itemize item}{mybullet}{\large\raise1pt\hbox{\textbullet}}
+\setbeamertemplate{itemize item}[mybullet]
+\setbeamertemplate{navigation symbols}{}
+%\bibliographystyle{apsr_fs} 
+    \defbeamertemplate*{footline}{my infolines theme}
+    {
+       \leavevmode%
+       \hbox{%
+       \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+         \usebeamerfont{author in head/foot}\insertshortauthor~~\insertshortinstitute
+       \end{beamercolorbox}%
+       \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+         \usebeamerfont{title in head/foot}\insertshorttitle
+       \end{beamercolorbox}%
+       \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+         \usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{2em}
+         \insertframenumber{} / \inserttotalframenumber\hspace*{2ex} 
+       \end{beamercolorbox}}%
+       \vskip0pt%
+    }
+\setbeamerfont{frametitle}{size=\small}
+\title[]{\textbf{\Large{Elements of Causal Inference \& Rubin Causal Model}}}
+\author[]{%
+  \texorpdfstring{%
+    \begin{columns}
+      \column{.3333\linewidth}
+      \centering
+      \large{}
+      \column{.40\linewidth}
+      \centering
+      \large{Evgeny Sedashov, PhD} \\
+      \small{esedashov@hse.ru}
+      \column{.3333\linewidth}
+      \centering
+      \large{}
+    \end{columns}
+ }
+ {Author 1, Author 2, Author 3}
+}
+
+
+% - Give the names in the same order as the appear in the paper.
+% - Use the \inst{?} command only if the authors have different
+%   affiliation.
+
+
+% - Use the \inst command only if there are several affiliations.
+% - Keep it simple, no one is interested in your street address.
+
+\date{9/02/2021}
+% - Either use conference name or its abbreviation.
+% - Not really informative to the audience, more for people (including
+%   yourself) who are reading the slides online
+
+\subject{}
+\usecolortheme{default}
+% This is only inserted into the PDF information catalog. Can be left
+% out. 
+
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+
+% \pgfdeclareimage[height=0.5cm]{university-logo}{university-logo-filename}
+% \logo{\pgfuseimage{university-logo}}
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+\begin{document} 
+\makeatletter
+\let\beamer@old@writeslidentry\beamer@writeslidentry
+\newcommand\bulletoff{\let\beamer@writeslidentry\relax}
+\newcommand\bulleton{\let\beamer@writeslidentry\beamer@old@writeslidentry}
+%------------------------------------------------
+\large
+\begin{frame}[plain]
+\titlepage 
+\end{frame}
+\section{Potential Outcomes}
+\begin{frame}{Introduction I}
+	\begin{itemize}
+	\setlength\itemsep{1em}
+	\item All of you probably encountered a causal question at some point in your life.
+	\item For instance, some of you might have wondered whether headache goes away if you take the aspirin.
+	\item Or whether regular smoking increases the probability of lung cancer?
+	\item Or whether going to the gym regularly helps losing weight?
+	\item Or whether graduates of masters programs have higher salaries?
+\end{itemize}
+\end{frame}
+\begin{frame}{Introduction II}
+	\begin{itemize}
+	\item There are several approaches you can use to address these questions.
+	\item For instance, you can throw a fair coin every time you experience a headache and take the aspiring when you see heads, otherwise you do nothing.
+	\item You can then record the subjective intensity of a headache an hour after the coin toss (after you either took or did not take the aspirin).
+	\item You can take the average of headache recordings for both aspirin and no aspirin \textbf{treatment} and declare the difference between those averages as the measure of aspirin's effectiveness...
+	\item ... or can you? 
+	\end{itemize}
+\end{frame}
+\begin{frame}{Introduction III}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item Potential outcomes model is a tremendously useful thinking framework for causal inference.
+	\item It's main usefulness comes from the fact that the causal effect is given a direct, specific interpretation, reducing any possible analytical ambiguity.
+	\item The fundamental idea in the potential outcomes model is the idea of a \textbf{treatment}, or \textbf{intervention}.
+	\item In Rubin Causal Model, causal inference cannot be done without a treatment. 
+	\item We will only be considering binary treatments, although analytical extensions for higher dimensions are fairly easy. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Introduction IV}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item Treatment is applied to a \textbf{subject}; ``unit of analysis'', ``experimental unit'', or ``analytical unit'' are more general terms.
+	\item The principal idea is that a person can only take one treatment at a specific moment in time. 
+	\item You cannot take and not take aspirin at the same point in time. 
+	\item Potential outcome is a measurable quantity that corresponds to each type of the \textbf{treatment}.
+\end{itemize}
+\end{frame}
+\begin{frame}{Potential Outcomes -- Example}
+	\begin{itemize}
+		\setlength\itemsep{2em}
+		\item Suppose you randomly chose a sample of local election commissions (УИК in Russia).
+		\item You want to know whether a door-to-door canvassing can be an effective campaign strategy for a certain candidate John Doe. 
+		\item You randomly assign election commissions into two groups: the first one is the treatment, and the second one is the control.
+	\end{itemize}
+\end{frame}
+\begin{frame}{Potential Outcomes -- Example}
+\begin{itemize}
+	\item You then send door-to-door canvassers to houses of people which are located in areas attached to commissions in the treatment group. 
+	\item Potential outcomes are measured as vote \% for a candidate John Doe. 
+\end{itemize}
+\small
+\begin{center}
+	\begin{tabular}{  c  c  c }
+		\hline\hline
+		Experimental Unit & \multicolumn{2}{c}{Potential Outcomes} \\
+		\cline{2-3}
+		& $Y$(Canvassing) & $Y$(No Canvassing) \\
+		\hline
+		УИК 1 & 50 \% & 40 \% \\
+		УИК 2 & 43 \% & 40 \% \\
+		. & . & . \\
+		. & . & . \\
+		\hline\hline
+	\end{tabular}
+\end{center}
+\end{frame}
+\section{Causal Effects}
+\begin{frame}{The Definition of Causal Effects I}
+	\begin{itemize}
+		\item The definition of causal effects follows directly from our preceding discussion.
+		\item Let's return to our aspirin example for a moment and suppose we want to know if it reduces the headache or not. 
+		\item What is the causal effect in this example?
+	\end{itemize}
+\small
+\begin{center}
+	\begin{tabular}{  c  c  c c }
+		\hline\hline
+		Analytical Units & \multicolumn{2}{c}{Potential Outcomes} & Causal \\
+		& & & Effect \\
+		\cline{2-3}
+		& $Y$(Aspirin) & $Y$(No Aspirin) & \\
+		\hline
+		Unit 1 & No Pain & Pain & Improved \\
+		& & & Condition\\
+		\hline\hline
+	\end{tabular}
+\end{center}
+\end{frame}
+\begin{frame}{The Definition of Causal Effects II}
+\begin{itemize}
+	\item As you can see, the causal effect is defined at the level of units of analysis.
+	\item In our aspirin example, there can be 4 different causal effects. 
+\end{itemize}
+\small
+\begin{center}
+	\begin{tabular}{  c  c  c c }
+		\hline\hline
+		Analytical Units & \multicolumn{2}{c}{Potential Outcomes} & Causal \\
+		& & & Effect \\
+		\cline{2-3}
+		& $Y$(Aspirin) & $Y$(No Aspirin) & \\
+		\hline
+		Unit I & No pain & Pain & Improved \\
+		& & & Condition\\
+		Unit II & No Pain & No pain & No Effect \\
+		Unit III & Pain & Pain & No Effect \\
+		Unit IV & Pain & No Pain & Worsened \\
+		& & & Condition\\
+		\hline\hline
+	\end{tabular}
+\end{center}
+\end{frame}
+\begin{frame}{The Definition of Causal Effects III}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item To summarize, a \textbf{causal effect} is a comparison of potential outcomes for each unit of analysis. 
+	\item This definition reveals the cornerstone problem behind the causal inference: only one potential outcome can ever be realized for a specific analytical unit. 
+	\item At a concrete point in time, you can either take or not take the aspiring, therefore giving the rise to the only one potential outcome -- either $Y$(Aspirin), или $Y$(No Aspirin).
+\end{itemize}
+\end{frame}
+\begin{frame}{The Definition of Causal Effects IV}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item Theoretically, you can imagine a situation when you CAN actually observe two potential outcomes simultaneously. 
+	\item For instance, you can have two absolutely identical Petri dishes with absolutely identical samples; you then apply treatment to one of the Petri dishes to get unit-level treatment effect. 
+	\item Such ideal situations are rare in social sciences and almost always demand strong identification assumptions. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Estimating Causal Effects I}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item Inability to observe the same unit at the same moment of time twice is the reason for multiple-unit designs. 
+	\item There are several possible alternatives: 
+	\begin{itemize}
+		\item time series data -- akin to the aspirin example, such data contains one unit observed in multiple time periods
+		\item cross-sectional data -- observations of multiple units in the same time moment (normally, pre-defined time interval) 
+		\item panel/longitudinal data -- combination of two previous cases
+	\end{itemize}
+	\item The presence of multiple units in the data, however, does not automatically solve the causal inference problem. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Estimating Causal Effects II}
+\begin{itemize}
+	\setlength\itemsep{2em}
+	\item Let's return to our working example of taking/not taking aspirin.
+	\item Now, however, we'll consider the situation when you and your friend both have headache and then decide to simultaneously take aspiring; might this be a solution to the conundrum? 
+	\item Careful thinking tells us that the answer is no. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Estimating Causal Effects III}
+\begin{itemize}
+	\setlength\itemsep{2em}
+	\item There are now 4 treatment types: $\{A - A, A - \neg A, \neg A - A, \neg A - \neg A\}$. 
+	\item Each of you now has 4 potential outcomes corresponding to these 4 treatment types.
+	\item Therefore, the problem of missing outcomes remains, and we are back where we started...
+\end{itemize}
+\end{frame}
+\begin{frame}{Estimating Causal Effects IV}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item This is where the usefulness of Potential Outcomes Model is most clear, as we can see what actually defines causal effects and what is assumed away. 
+	\item We can simplify our analytical task by assuming that your friend's actions with respect to the aspirin (taking or not taking) have no effect whatsoever on you and your headache.
+	\item Note that this is an \textbf{assumption}, not the definition of a causal effect!
+	\item Here, we reduce the number of potential outcomes to two since $Y_1(A - A) = Y_1(A - \neg A) = Y_1(A)$ и $Y_1(\neg A - A) = Y_1(\neg A - \neg A) = Y_1(\neg A)$.
+\end{itemize}
+\end{frame}
+\begin{frame}{Stability Axiom (SUTVA) I}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item Stable Unit Treatment Value Assumption (SUTVA) -- the assumption that significantly reduces causal inference issues. 
+	\item SUTVA eliminates the situation such as previous example. 
+\end{itemize}
+\begin{block}{Definition I}
+\textbf{SUTVA assumes that a) potential outcomes for a specific unit of analysis do not depend in any way on the treatment type assigned to other experimental units, b) treatment types are well-defined.}
+\end{block}
+\end{frame}
+\begin{frame}{Stability Axiom (SUTVA) II}
+\begin{itemize}
+	\item First part of SUTVA ensures independence of potential outcomes for a subject $i$ from treatments assigned to other subjects $j \neq i$. 
+	\item This premise is true for many situations, but assuming its truth automatically is a mistake. 
+	\item Your friend can start complaining about his headache if you are in the same room, affecting your condition through these complaints (e.g., making you stressed).
+	\item Another famous case concerns testing effectiveness of vaccines. 
+	\item Yet another case concerns effects of educational programs.
+\end{itemize}
+\end{frame}
+\begin{frame}{Stability Axiom (SUTVA) III}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item Second part of SUTVA implies that treatments are well-defined. 
+	\item This part has less intuitive nature than the first one and is a bit difficult to explain substantively. 
+	\item To get an idea, suppose you and your friend can take two different types of aspirin. 
+	\item $Y$(Aspirin) is not well-defined as you and your friend can now take two different versions of the same treatment.
+\end{itemize}
+\end{frame}
+\begin{frame}{Stability Axiom (SUTVA) IV}
+\begin{itemize}
+	\setlength\itemsep{3em}
+	\item The second part of SUTVA holds if you extend the number of potential outcomes to 3, corresponding to not taking aspirin at all, taking a weak type, and taking a strong type. 
+	\item Another solution is to assign the type of aspirin randomly, making the treatment to be ``taking a randomly chosen type of aspirin''. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Stability Axiom (SUTVA) -- Example I}
+\begin{itemize}
+	\setlength\itemsep{2em}
+	\item Let's consider details of SUTVA with door-to-door canvassing example. 
+	\item First part of SUTVA demands that potential outcomes for a specific experimental unit are independent from treatment types assigned to every other unit. 
+	\item Does this hold here? 
+\end{itemize}
+\end{frame}
+\begin{frame}{Stability Axiom (SUTVA) -- Example II}
+\begin{itemize}
+	\setlength\itemsep{2em}
+	\item Does the second part of SUTVA hold? 
+	\item It does if we are to assume that there is only one group doing the canvassing or qualifications and working ability of different canvassing teams are exactly the same. 
+	\item If none of these assumptions is valid, then random assignment of teams to houses is a better strategy. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Stability Axiom (SUTVA) -- Example III}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item For comparison purposes, let's assume now that we conduct the same canvassing experiment, but the units of analysis are now families living in a specific house. 
+	\item A single team goes door-to-door and talks to a person if the door is opened. 
+	\item What are the potential outcomes here?
+	\item Does SUTVA hold? 
+\end{itemize}
+\end{frame}
+\begin{frame}{Common Notations of Potential Outcomes Model}
+\begin{itemize}
+	\item Potential outcomes themselves are always denoted by $Y_i(w)$ где $w \in W$ -- a specific type, or level, of treatment. $\mathbf{Y}(w)$ -- a vector of all potential outcomes, corresponding to the treatment type $w$. 
+	\item Since causal inference is fundamentally a missing data problem, we will denote $Y_i^{obs}$ as the outcome that was actually observed for unit $i$ and $Y_i^{mis}$ as the missing potential outcome.
+\end{itemize}
+\begin{equation*}
+Y_i^{obs} = 
+\begin{cases}
+Y_i(1) \ if \ w = 1 \\
+Y_i(0) \ if \ w = 0
+\end{cases}
+Y_i^{mis} = 
+\begin{cases}
+Y_i(1) \ if \ w = 0 \\
+Y_i(0) \ if \ w = 1
+\end{cases}
+\end{equation*}
+\end{frame}
+\section{Assignment Mechanism}
+\begin{frame}{Defining Assignment Mechanisms}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item Assignment mechanism -- the main component of different causal identification strategies.
+	\item Assignment mechanism often presents the fundamental difference between various causal models. 
+	\item Assignment mechanism specifies the rule according to which units of analysis receive the treatment. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Formal Definition of Assignment Mechanism}
+\begin{itemize}
+\item Mathematically, assignment vector is a vector of length $N$, where $N$ -- the number of analytical units in a study. 
+\item Every element of this vector corresponds to a treatment type. 
+\end{itemize}
+\begin{block}{Definition II}
+Assignment mechanism is a row-exchangeable function defined for a matrix $[\mathbf{X}, \mathbf{Y}(0),\mathbf{Y}(1)]$, taking the values in the $[0,1]$ interval, and satisfying the following criteria $$\sum_{\mathbf{W} \in {0,1}^N} \mathbb{P}[\mathbf{W}|\mathbf{X},\mathbf{Y}(0), \mathbf{Y}(1)] = 1 \ \forall \mathbf{X}, \mathbf{Y}(0), \mathbf{Y}(1)$$
+\end{block}
+\end{frame}
+\begin{frame}{Defining Assignment Mechanisms -- Example I}
+\begin{itemize}
+\setlength\itemsep{1em}
+\item Let's go back to the aspirin example. 
+\item What are the possible assignment mechanisms here? 
+\item First, you and your friend may independently decide who takes and does not take the aspirin. 
+\item Second, you can toss a coin, if the heads come up, you take the aspirin and your friend does not, in the other scenario, the roles are reversed.  
+\end{itemize}
+\end{frame}
+\begin{frame}{Defining Assignment Mechanisms -- Example II}
+\begin{itemize}
+\item Suppose we have 3 subjects and 2 types of treatment; how many total assignment vectors are there? 
+\item The simplest assignment mechanism is: $$\mathbb{P}[\mathbf{W}|\mathbf{X},\mathbf{Y}(0), \mathbf{Y}(1)] = \frac{1}{2^N} \ \forall \ \mathbf{W} \in \{0,1\}^N$$.
+\item What are the disadvantages of such mechanism? 
+\item Classical randomized experiment corresponds to a mechanism: $$\mathbb{P}[\mathbf{W}|\mathbf{X},\mathbf{Y}(0), \mathbf{Y}(1)] = {N \choose N_t}^{-1} \ \forall \ \mathbf{W} \ s.t. \ \sum_{i=1}^N w_i = N_t$$.
+\end{itemize}
+\end{frame}
+\begin{frame}{Calculating Assignment Probabilities for Different Experimental Units}
+\begin{itemize}	
+\setlength\itemsep{1em}
+\item We are also often interested in individual assignment probabilities rather than probability of a full assignment vector. 
+\item Assignment probability of experimental unit $i$ is defined as $$p_i(\mathbf{X}, \mathbf{Y}(0), \mathbf{Y}(1)) = \sum_{\mathbf{W} \in \{0,1\}^N}\mathbf{1}_{w_i}(\mathbf{W})\mathbb{P}[\mathbf{W}|\mathbf{X},\mathbf{Y}(0), \mathbf{Y}(1)]$$
+where $\mathbf{1}_{w_i}(\mathbf{W})$ -- the indicator function, equals to $1$, if $\mathbf{W} \ni w_i = 1$, and 0 in all other cases. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Propensity Scores}
+\begin{itemize}	
+\setlength\itemsep{1em}
+\item Propensity score constitutes another important characteristic of assignment mechanism. 
+\item Propensity score defines the average assignment probability for analytical units that are similar with respect to certain characteristics: $$e(x) = \frac{1}{N(x)}\sum_{i=1}^N\mathbf{1}_{X_i = x}p_i(\mathbf{X}, \mathbf{Y}(0), \mathbf{Y}(1))$$
+where $N(x)$ -- the number of units with characteristics $x$, $\mathbf{1}_{X_i = x}$ -- the indicator function, equals to 1 if $X_i = x$. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Calculating Probabilities for Assignment Vectors -- Example I}
+\begin{itemize}
+\item The assignment mechanism for three subjects is defined as follows: the first subject gets the treatment (1 or 0) by the toss of a fair coin, the second gets the treatment that has not been assigned to the first one.
+\item The third one gets the treatment 1 if it appears to be better (or at least not worse) than the treatment 0 based on observed outcomes for the first two subjects.
+\item Let's calculate probabilities for all assignment vectors.
+\end{itemize}
+\end{frame}
+\begin{frame}{Calculating Probabilities for Assignment Vectors -- Example I}
+\begin{itemize}
+\item $(1,0,1)$ has the probability $1/2$ if $Y_1(1) \geq Y_2(0)$, and 0 probability if $Y_1(1) < Y_2(0)$
+\item $(1,0,0)$ has the probability $1/2$ if $Y_1(1) < Y_2(0)$, and 0 probability if  $Y_1(1) \geq Y_2(0)$
+\item $(0,1,1)$ has the probability $1/2$ if $Y_1(0) \leq Y_2(1)$, and 0 probability if $Y_1(0) > Y_2(1)$
+\item $(0,1,0)$ has the probability $1/2$ if $Y_1(0) > Y_2(1)$, and 0 probability if $Y_1(0) \leq Y_2(1)$
+\item All other vectors have 0 probability. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Calculating Probability of the Active Treatment}
+\begin{itemize}
+\item $p_1 = p_2 = 1/2$
+\item For a third subject, the situation is a bit more complicated. 
+\item If $Y_1(1) \geq Y_2(0)$ и $Y_1(0) \leq Y_2(1)$, $p_3 = 1$, as any observed outcome for the first two subjects leads to assigning a treatment for the third.
+\item If $Y_1(1) < Y_2(0)$ и $Y_1(0) > Y_2(1)$, $p_3 = 0$.
+\item In other cases $p_3 = 1/2$. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Importance of Assignment Mechanisms}
+\begin{itemize}
+\item For illustration, let's suppose that for treating a certain disease patients can either get a drug or scheduled operation. 
+\item As potential outcomes let's consider the life expectancy after the experiment is done. 
+\end{itemize}
+\small
+\begin{center}
+\begin{tabular}{  c  c  c c }
+\hline\hline
+Unit of & \multicolumn{2}{c}{Potential Outcomes} & Causal \\
+Analysis & & & Effect \\
+\cline{2-3}
+& $Y$(Drug) & $Y$(Operation) & \\
+\hline
+Patient I & 1 & 7 & 6 \\
+Patient II & 6 & 5 & -1 \\
+Patient III & 1 & 5 & 4 \\
+Patient IV & 8 & 7 & -1 \\
+& & & \\
+The Average & 4 & 6 & 2 \\
+\hline\hline
+\end{tabular}
+\end{center}
+\end{frame}
+\begin{frame}{Importance of Assignment Mechanisms}
+\begin{itemize}
+\item As a thought experiment, let's assume that a certain doctor knows this table of potential outcomes and, consequently, knows what treatment each patient should receive. 
+\end{itemize}
+\small
+\begin{center}
+\begin{tabular}{ c c c c c }
+\hline\hline
+Unit of & \multicolumn{2}{c}{Potential} & Treatment & Outcome \\
+Analysis & \multicolumn{2}{c}{Outcomes} & & \\
+\cline{2-3}
+& $Y$(D) & $Y$(O) & & \\
+\hline
+Patient I & 1 & 7 & O & 7 \\
+Patient II & 6 & 5 & D & 6 \\
+Patient III & 1 & 5 & O & 5 \\
+Patient IV & 8 & 7 & D & 8 \\
+& & & & \\
+\hline\hline
+\end{tabular}
+\end{center}
+\end{frame}
+\begin{frame}{Classifying Assignment Mechanisms}
+\begin{itemize}
+\item Rubin Causal Model differentiates between various assignment mechanisms by using three criteria
+\begin{itemize}
+\item individualistic assignment
+\item probabilistic assignment
+\item unconfounded assignment
+\end{itemize}
+\item Sometimes researchers outline the fourth criteria -- controlled assignment, i.e., the one that is under direct researcher's control. 
+\end{itemize}
+\end{frame}
+\begin{frame}{Individualistic Assignment}
+\begin{block}{Definition III}
+Assignment mechanism is individualistic if there exists a function $q(X_i, Y_i(0), Y_i(1))$, such that $$p_i(\mathbf{X},\mathbf{Y}(0),\mathbf{Y}(1)) = q(X_i, Y_i(0), Y_i(1)) \ \forall i \in \{1 ... N\}$$ 
+and
+\small
+$$\mathbb{P}[\mathbf{W}|\mathbf{X},\mathbf{Y}(0),\mathbf{Y}(1)] = c * \prod_{i=1}^{N}q(X_i,Y_i(0),Y_i(1))^{W_i}(1 - q(X_i, Y_i(0), Y_i(1)))^{1 - W_i}$$
+for all $(\mathbf{W}, \mathbf{X}, \mathbf{Y}(0), \mathbf{Y}(1))$ in some set $\mathbb{A}$ and 0 elsewhere.
+\end{block}
+\end{frame}
+\begin{frame}{Probabilistic Assignment}
+\begin{block}{Definition IV}
+Assignment mechanism is probabilistic if for each unit of analysis $i$ we have $$0 < p_i(\mathbf{X},\mathbf{Y}(0),\mathbf{Y}(1)) < 1 \ \forall \mathbf{X},\mathbf{Y}(0),\mathbf{Y}(1)$$
+\end{block}
+\end{frame}
+\begin{frame}{Unconfounded Assignment}
+\small
+\begin{block}{Definition V}
+Assignment mechanism is unconfounded if it does not depend on potential outcomes: $$\mathbb{P}(\mathbf{W}|\mathbf{X},\mathbf{Y}(0),\mathbf{Y}(1)) = \mathbb{P}(\mathbf{W}|\mathbf{X},\mathbf{Y}'(0),\mathbf{Y}'(1)) \ \forall \mathbf{W}, \mathbf{X}, \mathbf{Y}(0), \mathbf{Y}(1), \mathbf{Y}'(0), \mathbf{Y}'(1)$$
+\end{block}
+\end{frame}
+\begin{frame}{Classifying Assignment Mechanisms -- Practical Aspects}
+\begin{itemize}
+\item In practice, the most important characteristic of assignment mechanism is its unconfoundedness. 
+\item Famous endogeneity problem can be understood in the context of this property. 
+\item Assignment mechanisms that are individualistic, probabilistic, and unconfounded are called \textbf{regular}. 
+\item Classical randomized experiments correspond to regular assignment mechanisms that are also fully controlled by a researcher.
+\item Observational study is a research where the exact functional form of assignment mechanism is unknown to a researcher. 
+\end{itemize}
+\end{frame}
+\end{document}
+
